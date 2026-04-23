@@ -53,17 +53,26 @@ docker build -t <nombre imagen>:<tag> .
 ### Ejecutar el archivo Dockerfile y construir una imagen en la versión 1.0
 No olvides verificar en qué directorio se encuentra el archivo Dockerfile
 ```
-
+docker build -t apache-image:1.0 .
 ```
+<img width="1703" height="744" alt="image" src="https://github.com/user-attachments/assets/c1b973d6-3547-40be-a2c1-3da55627a338" />
 
 **¿Cuántos pasos se han ejecutado?**
-# RESPONDER 
+Se han ejecutado 5 pasos.
 
 ### Inspeccionar la imagen creada
-# COMPLETAR CON UNA CAPTURA
+<img width="746" height="848" alt="image" src="https://github.com/user-attachments/assets/8c004936-aca4-4da2-b927-c21ac9bc463c" />
 
 **Modificar el archivo index.html para incluir su nombre y luego crear una nueva versión de la imagen anterior**
+<img width="1006" height="245" alt="image" src="https://github.com/user-attachments/assets/f5055e46-3cb3-41ae-818e-bd249fa596a4" />
+```
+docker build -t apache-image:2.0
+```
+<img width="1915" height="689" alt="image" src="https://github.com/user-attachments/assets/3de5f9f0-bddd-4c5a-b5bf-c0bdebc430bc" />
+
 **¿Cuántos pasos se han ejecutado? ¿Observa algo diferente en la creación de la imagen**
+Se han ejecutado 5 pasos mismo, la diferencia es que los pasos [2/5], [3/5] y [4/5] aparecen como CACHED, lo que significa que Docker reutilizó las capas anteriores que no cambiaron (configuración de repositorios, yum update, instalación de httpd). 
+Solo el paso [5/5] COPY se ejecutó realmente porque el archivo index.html fue modificado. Esto demuestra el mecanismo de caché de Docker, que acelera significativamente la construcción al evitar repetir pasos innecesarios.
 
 ## Mecanismo de caché
 Docker usa un mecanismo de caché cuando crea imágenes para acelerar el proceso de construcción y evitar la repetición de pasos que no han cambiado. Cada instrucción en un Dockerfile crea una capa en la imagen final. Docker intenta reutilizar las capas de una construcción anterior si no han cambiado, lo que reduce significativamente el tiempo de construcción.
@@ -75,30 +84,39 @@ Docker usa un mecanismo de caché cuando crea imágenes para acelerar el proceso
 
 ### Crear un contenedor a partir de las imagen creada, mapear todos los puertos
 ```
-
+docker run -d --name srv-apache -P apache-image:2.0
 ```
+<img width="1794" height="223" alt="image" src="https://github.com/user-attachments/assets/a47540e8-ca81-4830-85bd-6fddd154e808" />
 
 ### ¿Con que puerto host se está realizando el mapeo?
-# COMPLETAR CON LA RESPUESTA
+El mapeo se realiza con el puerto host 32768, que Docker asignó 
+automáticamente al puerto 80 del contenedor.
+<img width="1919" height="452" alt="image" src="https://github.com/user-attachments/assets/0b543371-0dc8-4ae1-b8e4-881cb7ee4d21" />
 
 **¿Qué es una imagen huérfana?**
-# COMPLETAR CON LA RESPUESTA
+Una imagen huérfana (dangling image) es una imagen que no tiene nombre ni etiqueta asociada, generalmente porque fue reemplazada por una versión más nueva de la misma imagen. Esto ocurre cuando se construye una nueva versión 
+de una imagen con el mismo nombre y tag, dejando la versión anterior sin referencia. Ocupan espacio en disco sin ser utilizadas por ningún contenedor.
 
 ### Identificar imágenes huérfanas
 ```
 docker images -f "dangling=true"
 ```
+<img width="1919" height="117" alt="image" src="https://github.com/user-attachments/assets/a7f351a2-5e63-44e8-9901-ca1b175b9476" />
 
 ### Listar los IDS de las imágenes huérfanas
 ```
 docker images -f "dangling=true" -q
 ```
+<img width="1340" height="69" alt="image" src="https://github.com/user-attachments/assets/9bc9bfb6-ea07-462d-acee-ef504cb64b69" />
+
 
 ### Eliminar imágenes huérfanas
 Este comando eliminará todas las imágenes que no estén asociadas a ningún contenedor en ejecución. Antes de ejecutarlo, asegúrate de revisar las imágenes que serán eliminadas para evitar la pérdida de imágenes importantes. 
 ```
 docker image prune
 ```
+<img width="1121" height="127" alt="image" src="https://github.com/user-attachments/assets/7c21e7db-c229-428c-bf6a-eb01a4e689ef" />
+
 
 ### Para Ejecutar un archivo Dockerfile que tiene otro nombre
 ```
